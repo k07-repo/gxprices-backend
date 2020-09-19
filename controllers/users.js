@@ -27,8 +27,7 @@ usersRouter.get('/', async(request, response) => {
 
 usersRouter.get('/:id', async (request, response) => {
   const user = await User.findOne({_id: request.params.id}).populate('watchlist')
-
-  response.json(user.toJSON)
+  response.json(user.toJSON())
 })
 
 module.exports = usersRouter
