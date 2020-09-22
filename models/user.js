@@ -7,16 +7,22 @@ const userSchema = mongoose.Schema({
     unique: true
   },
   passwordHash: String,
-  products: [
+  ownedProducts: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product'
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+      },
+      quantity: Number
     }
   ],
   watchlist: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product'
+      product: {
+       type: mongoose.Schema.Types.ObjectId,
+       ref: 'Product'
+      },
+      quantity: Number
     }
   ]
 })
