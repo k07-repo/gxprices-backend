@@ -21,12 +21,36 @@ usersRouter.post('/', async (request, response) => {
 })
 
 usersRouter.get('/', async(request, response) => {
-  const users = await User.find({}).populate('watchlist.product').populate('ownedProducts.product')
+  const users = await User.find({})
+  .populate({
+    path: 'watchlist.product',
+    populate: {
+      path: 'group'
+    }
+  })
+  .populate({
+    path: 'ownedProducts.product',
+    populate: {
+      path: 'group'
+    }
+  })
   response.json(users)
 })
 
 usersRouter.get('/:id', async (request, response) => {
-  const user = await User.findOne({_id: request.params.id}).populate('watchlist.product').populate('ownedProducts.product')
+  const user = await User.findOne({_id: request.params.id})
+    .populate({
+      path: 'watchlist.product',
+      populate: {
+        path: 'group'
+      }
+    })
+    .populate({
+      path: 'ownedProducts.product',
+      populate: {
+        path: 'group'
+      }
+    })
   response.json(user.toJSON())
 })
 
