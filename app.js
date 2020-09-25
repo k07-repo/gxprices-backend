@@ -9,6 +9,8 @@ const loginRouter = require('./controllers/login')
 const usersRouter = require('./controllers/users')
 const listsRouter = require('./controllers/lists')
 const metaRouter = require('./controllers/meta')
+const middleware = require('./utils/middleware')
+
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
@@ -28,4 +30,7 @@ app.use('/users', usersRouter)
 app.use('/login', loginRouter)
 app.use('/lists', listsRouter)
 app.use('/meta', metaRouter)
+
+app.use(middleware.errorHandler)
+
 module.exports = app
