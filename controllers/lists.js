@@ -97,15 +97,22 @@ listsRouter.put('/collection/delete/:id', async (request, response) => {
     }
     const user = await User.findById(decodedToken.id)
 
+    console.log(request.params.id)
     let id = mongoose.Types.ObjectId(request.params.id)
     const index = user.ownedProducts.findIndex(collectionEntry => String(collectionEntry.product) === String(id))
     
     if(index != -1) {
         user.ownedProducts.splice(index, 1)
     }
-    const savedUser = await user.save()
-    
-    response.json(savedUser)
+    const populatedUser = await user.populate({
+        path: 'ownedProducts.product',
+        populate: {
+          path: 'group'
+        }
+      })
+    const savedUser = await user.save()      
+    console.log(savedUser)
+    response.json(savedUser.toJSON())
 })
 
 listsRouter.put('/collection/increment/:id', async (request, response) => {
@@ -131,8 +138,16 @@ listsRouter.put('/collection/increment/:id', async (request, response) => {
         matchedProduct.quantity++
     }
 
-    const savedUser = await user.save()
-    response.json(savedUser)
+    const populatedUser = await user.populate({
+        path: 'ownedProducts.product',
+        populate: {
+          path: 'group'
+        }
+      })
+    const savedUser = await user.save()      
+    console.log(savedUser)
+    console.log(typeof savedUser.ownedProducts[0].product)
+    response.json(savedUser.toJSON())
 })
 
 listsRouter.put('/collection/decrement/:id', async (request, response) => {
@@ -161,7 +176,14 @@ listsRouter.put('/collection/decrement/:id', async (request, response) => {
     }
 
     const savedUser = await user.save()
-    response.json(savedUser)
+    const su2 = savedUser.populate('ownedProducts.product')
+    console.log(su2)
+    response.json(savedUser.populate({
+        path: 'ownedProducts.product',
+        populate: {
+          path: 'group'
+        }
+      }))
 })
 
 module.exports = listsRouter
