@@ -38,15 +38,10 @@ listsRouter.put('/:user/watchlist/:id/', async (request, response, next) => {
 
     //Modify user data
     const watchlist = userToUpdate.watchlist
-    let matchedProduct = watchlist.find(product => String(product.product._id) === String(productId))
+    let matchedProduct = watchlist.find(product => String(product._id) === String(productId))
 
-    if(!matchedProduct) {
-        watchlist.push({
-            product: productId,
-            quantity: 1
-        })
-    } else {
-        matchedProduct.quantity++
+    if(!matchedProduct) {    
+        await User.update({_id: userToUpdate._id}, {$addToSet: {watchlist: productId}}) //Prevent duplicates caused by spamming "add" button
     }
 
     //Save user
@@ -73,10 +68,12 @@ listsRouter.put('/:user/collection/:id/', async (request, response, next) => {
     let matchedProduct = ownedProducts.find(product => String(product.product._id) === String(productId))
 
     if(!matchedProduct) {
-        ownedProducts.push({
+        let collectionItem = {
             product: productId,
             quantity: 1
-        })
+        }
+    
+        await User.update({_id: userToUpdate._id}, {$addToSet: {ownedProducts: collectionItem}}) //Prevent duplicates caused by spamming "add" button
     } else {
         matchedProduct.quantity++
     }

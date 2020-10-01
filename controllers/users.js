@@ -28,7 +28,7 @@ usersRouter.post('/', async (request, response, next) => {
 usersRouter.get('/', async(request, response) => {
   const users = await User.find({})
   .populate({
-    path: 'watchlist.product',
+    path: 'watchlist',
     populate: {
       path: 'group'
     }
@@ -45,7 +45,7 @@ usersRouter.get('/', async(request, response) => {
 usersRouter.get('/:id', async (request, response) => {
   const user = await User.findOne({_id: request.params.id})
     .populate({
-      path: 'watchlist.product',
+      path: 'watchlist',
       populate: {
         path: 'group'
       }

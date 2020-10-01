@@ -18,11 +18,8 @@ const userSchema = mongoose.Schema({
   ],
   watchlist: [
     {
-      product: {
        type: mongoose.Schema.Types.ObjectId,
        ref: 'Product'
-      },
-      quantity: Number
     }
   ]
 })
