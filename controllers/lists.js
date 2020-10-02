@@ -83,7 +83,31 @@ listsRouter.put('/:user/collection/:id/', async (request, response, next) => {
     response.json(savedUser)
 })
 
-listsRouter.put('/watchlist/delete/:id', async (request, response) => {
+listsRouter.delete('/:user/watchlist/:id', async (request, response) => {
+    const decodedToken = verifyToken(request)
+    if(!decodedToken) {
+        return response.status(401).json({error: 'Token invalid'})
+    }
+
+    //Verify the authorized user is the one we're posting to
+    const userToUpdate = await User.findById(decodedToken.id)
+    let requestUserId = mongoose.Types.ObjectId(request.params.user)
+    let productId = mongoose.Types.ObjectId(request.params.id)
+    if(String(userToUpdate._id) !== String(requestUserId)) {
+        return response.status(401).json({error: 'User and token mismatch'})
+    }
+
+    //Modify user data
+    const watchlist = userToUpdate.watchlist
+    const matchedProduct = watchlist.findIndex(product => String(product._id) === String(productId))
+    if(index > 0) {
+        watchlist.splice(index, 1)
+    }
+
+    //Save user
+    const savedUser = await userToUpdate.save()
+    response.json(savedUser)
+    /*
     const body = request.body
     const token = getTokenFrom(request)
     const decodedToken = jwt.verify(token, process.env.SECRET)
@@ -100,7 +124,7 @@ listsRouter.put('/watchlist/delete/:id', async (request, response) => {
     }
     const savedUser = await user.save()
     
-    response.json(savedUser)
+    response.json(savedUser)*/
 })
 
 
