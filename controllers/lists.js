@@ -73,7 +73,11 @@ listsRouter.put('/:user/collection/:id/', async (request, response, next) => {
             quantity: 1
         }
     
-        await User.update({_id: userToUpdate._id}, {$addToSet: {ownedProducts: collectionItem}}) //Prevent duplicates caused by spamming "add" button
+        //Prevent duplicates caused by spamming "add" button
+        await User.updateOne(
+            {_id: userToUpdate._id, 'ownedProducts.product': {'$ne': mongoose.Types.ObjectId(productId)}}, 
+            {$addToSet: {ownedProducts: collectionItem}}
+        ) 
     }
 
     //Save user
@@ -166,7 +170,7 @@ listsRouter.put('/:user/collection/increment/:id', async (request, response) => 
 
     //actual request
     let id = mongoose.Types.ObjectId(request.params.id)
-    const ownedProducts = user.ownedProducts
+    const ownedProducts = userToUpdate.ownedProducts
     let matchedProduct = ownedProducts.find(product => String(product.product._id) === String(productId))
 
     if(!matchedProduct) {
@@ -207,7 +211,7 @@ listsRouter.put('/:user/collection/decrement/:id', async (request, response) => 
     //actual request
     let id = mongoose.Types.ObjectId(request.params.id)
 
-    const ownedProducts = user.ownedProducts
+    const ownedProducts = userToUpdate.ownedProducts
     let matchedProduct = ownedProducts.find(product => String(product.product._id) === String(productId))
 
     if(!matchedProduct) {
