@@ -60,7 +60,8 @@ usersRouter.get('/', async (request, response) => {
       populate: {
         path: 'group'
       }
-    })
+    }) 
+    
   response.json(users)
 })
 

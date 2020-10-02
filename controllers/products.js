@@ -9,7 +9,6 @@ productRouter.get('/', async (request, response) => {
 
 productRouter.get('/group/:id', async (request, response) => {
   const products = await Product.find({groupId: request.params.id}).populate('group')
-
   response.json(products.map(product => product.toJSON()))
 })
 
