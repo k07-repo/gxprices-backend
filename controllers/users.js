@@ -30,6 +30,10 @@ usersRouter.post('/', async (request, response, next) => {
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
 
+  if(!body.username || !body.password) {
+    return response.status(400).json({error: 'Username and/or password are empty'}).end()
+  }
+
   const user = new User({
     username: body.username,
     passwordHash,
