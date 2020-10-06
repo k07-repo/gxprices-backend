@@ -51,26 +51,20 @@ usersRouter.post('/', async (request, response, next) => {
 
 })
 
-usersRouter.get('/', async (request, response) => {
-  const users = await User.find({})
-    .populate({
-      path: 'watchlist',
-      populate: {
-        path: 'group'
-      }
-    })
-    .populate({
-      path: 'ownedProducts.product',
-      populate: {
-        path: 'group'
-      }
-    }) 
-    
-  response.json(users)
-})
-
+//Get the details of the user. Requires you to be logged in as said user
 usersRouter.get('/:id', async (request, response) => {
-  const user = await User.findOne({ _id: request.params.id })
+  const decodedToken = verifyToken(request)
+  if(!decodedToken) {
+      return response.status(401).json({error: 'Token invalid'})
+  }
+
+  //Verify the authorized user is the one we're requesting
+  let user = await User.findById(decodedToken.id)
+  if(String(user._id) !== String(request.params.id)) {
+      return response.status(401).json({error: 'User and token mismatch'})
+  }
+
+  user = await User.findOne({ _id: request.params.id })
     .populate({
       path: 'watchlist',
       populate: {
@@ -86,6 +80,7 @@ usersRouter.get('/:id', async (request, response) => {
   response.json(user.toJSON())
 })
 
+//Delete a user. Requires you to be logged in as said user
 usersRouter.delete('/:id', async (request, response) => {
   const decodedToken = verifyToken(request)
   if (!decodedToken) {
