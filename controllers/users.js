@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken')
 const listsRouter = require('express').Router()
 const mongoose = require('mongoose')
 
+const saltRounds = 10
+
 const getTokenFrom = (request) => {
   const authorization = request.get('authorization')
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
@@ -26,8 +28,7 @@ const verifyToken = (request) => {
 
 usersRouter.post('/', async (request, response, next) => {
   const body = request.body
-
-  const saltRounds = 10
+  
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
 
   if(!body.username || !body.password) {
@@ -96,6 +97,59 @@ usersRouter.delete('/:id', async (request, response) => {
   else {
     await User.findByIdAndRemove(request.params.id)
     return response.status(204).end()
+  }
+})
+
+//Change username of a user. Requires you to be logged in assaid user
+usersRouter.put('/:id/changeusername', async (request, response) => {
+  if(!request.body.newUsername) {
+    return response.status(400).json({ error: 'Need to include new username!'})
+  }
+
+  const decodedToken = verifyToken(request)
+  if (!decodedToken) {
+    return response.status(401).json({ error: 'Token invalid' })
+  }
+
+  //Verify the authorized user is the one we're trying to delete
+  const userToUpdate = await User.findById(decodedToken.id)
+  let requestUserId = mongoose.Types.ObjectId(request.params.id)
+  if (String(userToUpdate._id) !== String(requestUserId)) {
+    return response.status(401).json({ error: 'User and token mismatch' })
+  }
+  else {
+    const existingUser = await User.findOne({username: request.body.newUsername})
+    if(existingUser) {
+      return response.status(400).json({ error : 'Username already in use! '})
+    }
+    
+    await User.findByIdAndUpdate(request.params.id, {username: request.body.newUsername})
+    response.status(200).end()
+  }
+})
+
+//Change password of a user. Requires you to be logged in as said user
+usersRouter.put('/:id/changepassword', async (request, response) => {
+  if(!request.body.newPassword) {
+    return response.status(400).json({ error: 'Need to include new password!'})
+  }
+
+  const decodedToken = verifyToken(request)
+  if (!decodedToken) {
+    return response.status(401).json({ error: 'Token invalid' })
+  }
+
+  //Verify the authorized user is the one we're trying to delete
+  const userToUpdate = await User.findById(decodedToken.id)
+  let requestUserId = mongoose.Types.ObjectId(request.params.id)
+  if (String(userToUpdate._id) !== String(requestUserId)) {
+    return response.status(401).json({ error: 'User and token mismatch' })
+  }
+  else {    
+    const passwordHash = await bcrypt.hash(request.body.newPassword, saltRounds)
+    userToUpdate.passwordHash = passwordHash
+    const savedUser = await userToUpdate.save()
+    response.json(savedUser)
   }
 })
 
