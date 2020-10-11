@@ -32,10 +32,6 @@ app.use('/login', loginRouter)
 app.use('/lists', listsRouter)
 app.use('/meta', metaRouter)
 
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '/'))
-})
-
 app.use(middleware.errorHandler)
 
 module.exports = app
