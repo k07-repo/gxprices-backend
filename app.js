@@ -32,12 +32,8 @@ app.use('/login', loginRouter)
 app.use('/lists', listsRouter)
 app.use('/meta', metaRouter)
 
-app.get('/*', function (req, res) {
-  res.sendFile('../build/index.html', function (err) {
-    if (err) {
-      res.status(500).send(err)
-    }
-  })
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'index.html'))
 })
 
 app.use(middleware.errorHandler)
