@@ -24,6 +24,14 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true })
     console.log('error connecting to MongoDB:', error.message)
   })
 
+app.get('/*', function (req, res) {
+  res.sendFile(path.join(__dirname, 'path/to/your/index.html'), function (err) {
+    if (err) {
+      res.status(500).send(err)
+    }
+  })
+})
+
 app.use('/products', productsRouter)
 app.use('/groups', groupsRouter)
 app.use('/users', usersRouter)
